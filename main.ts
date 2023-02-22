@@ -1,10 +1,16 @@
 namespace SpriteKind {
     export const Ball = SpriteKind.create()
     export const Goal = SpriteKind.create()
+    export const Pet = SpriteKind.create()
 }
-sprites.onOverlap(SpriteKind.Goal, SpriteKind.Ball, function (sprite, otherSprite) {
-    info.changeScoreBy(1)
-    music.play(music.melodyPlayable(music.powerUp), music.PlaybackMode.UntilDone)
+sprites.onOverlap(SpriteKind.Enemy, SpriteKind.Pet, function (sprite, otherSprite) {
+    game.setGameOverEffect(false, effects.melt)
+    game.setGameOverScoringType(game.ScoringType.HighScore)
+    game.gameOver(false)
+})
+sprites.onOverlap(SpriteKind.Player, SpriteKind.Ball, function (sprite, otherSprite) {
+    info.changeScoreBy(2)
+    music.play(music.melodyPlayable(music.baDing), music.PlaybackMode.UntilDone)
     sprites.destroy(otherSprite)
 })
 function spawnBall () {
@@ -29,30 +35,43 @@ function spawnBall () {
     aBall.y = 0
     aBall.x = randint(15, 145)
     aBall.setBounceOnWall(true)
-    aBall.vx = randint(0, 20)
-    aBall.vy = randint(0, 20)
+    aBall.vx = randint(-20, 20)
+    aBall.vy = randint(-20, 20)
     aBall.ay = 15
     ballCount = ballCount + 1
 }
 controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
-    effects.starField.startScreenEffect(300)
-    for (let value of sprites.allOfKind(SpriteKind.Ball)) {
-        if (Math.percentChance(50)) {
-            sprites.destroy(value)
-        }
-    }
+    boost = 4
+    info.changeScoreBy(-10)
+    music.play(music.melodyPlayable(music.powerUp), music.PlaybackMode.UntilDone)
 })
 sprites.onOverlap(SpriteKind.Enemy, SpriteKind.Ball, function (sprite, otherSprite) {
     info.changeScoreBy(-1)
-    music.play(music.melodyPlayable(music.powerDown), music.PlaybackMode.UntilDone)
     sprites.destroy(otherSprite)
+    music.play(music.melodyPlayable(music.wawawawaa), music.PlaybackMode.UntilDone)
 })
-sprites.onOverlap(SpriteKind.Enemy, SpriteKind.Goal, function (sprite, otherSprite) {
-    game.setGameOverEffect(false, effects.melt)
-    game.gameOver(false)
-})
+function updateSpeed () {
+    if (info.score() < 15) {
+        gameSpeed = 15
+    } else {
+        gameSpeed = info.score()
+    }
+    if (Math.percentChance(25)) {
+        enemySpeed = gameSpeed
+    } else {
+        enemySpeed = gameSpeed / 3
+    }
+    if (boost > 0) {
+        aPet.startEffect(effects.fire)
+        boost = boost - 1
+        petSpeed = gameSpeed * 2
+    } else {
+        petSpeed = gameSpeed
+        effects.clearParticles(aPet)
+    }
+}
 function spawnGoal () {
-    aGoal = sprites.create(img`
+    aPet = sprites.create(img`
         . . 4 4 4 . . . . 4 4 4 . . . . 
         . 4 5 5 5 e . . e 5 5 5 4 . . . 
         4 5 5 5 5 5 e e 5 5 5 5 5 4 . . 
@@ -67,9 +86,9 @@ function spawnGoal () {
         . . . f 5 5 5 5 5 4 5 5 f f . . 
         . . . f 5 f f f 5 f f 5 f . . . 
         . . . f f . . f f . . f f . . . 
-        `, SpriteKind.Goal)
+        `, SpriteKind.Pet)
     animation.runImageAnimation(
-    aGoal,
+    aPet,
     [img`
         . . 4 4 4 . . . . 4 4 4 . . . . 
         . 4 5 5 5 e . . e 5 5 5 4 . . . 
@@ -116,12 +135,12 @@ function spawnGoal () {
         . . . . f 5 4 5 f 5 f f f . . . 
         . . . . . f f f f f f f . . . . 
         `],
-    500,
+    300,
     true
     )
-    aGoal.x = 10
-    aGoal.y = 10
-    aGoal.setStayInScreen(true)
+    aPet.x = 10
+    aPet.y = 10
+    aPet.setStayInScreen(true)
 }
 function spawnPlayer () {
     aPlayer = sprites.create(img`
@@ -289,7 +308,7 @@ function spawnEnemy () {
         . . . f f f f f f f c c c c c . 
         . . . . . . . . . . . . c c c c 
         `],
-    500,
+    300,
     true
     )
     anEnemy.x = 120
@@ -298,9 +317,13 @@ function spawnEnemy () {
 }
 let anEnemy: Sprite = null
 let aPlayer: Sprite = null
-let aGoal: Sprite = null
-let aBall: Sprite = null
+let petSpeed = 0
+let aPet: Sprite = null
+let enemySpeed = 0
+let boost = 0
 let ballCount = 0
+let aBall: Sprite = null
+let gameSpeed = 0
 scene.setBackgroundImage(img`
     9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999
     9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999
@@ -424,12 +447,13 @@ scene.setBackgroundImage(img`
     dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
     `)
 music.setVolume(125)
-ballCount = 0
+gameSpeed = 15
 spawnGoal()
 spawnEnemy()
 spawnPlayer()
 game.onUpdateInterval(1000, function () {
     spawnBall()
-    anEnemy.follow(aGoal, 20)
-    aGoal.follow(aPlayer, 40)
+    updateSpeed()
+    anEnemy.follow(aPet, enemySpeed)
+    aPet.follow(aPlayer, petSpeed)
 })
