@@ -114,15 +114,15 @@ function spawnGoal () {
 function spawnPlayer () {
     aPlayer = sprites.create(img`
         . . . . . . . . . . . . . . . . 
+        . . . . . . . 3 . . 3 3 . . . . 
+        . . . . . . 3 3 . . 2 3 . . . . 
+        . . . . . . 2 2 . 2 2 2 . . . . 
         . . . . . . . . . . . . . . . . 
-        . . . . . . . . . . . . . . . . 
-        . . . . . . . . . . . . . . . . 
-        . . . . . . . . . . . . . . . . 
-        . . . . . . . . . . . . . . . . 
-        . . . . . . . . . . . . . . . . 
-        f f f f f f f f f f f f f f f f 
-        f f f f f f f f f f f f f f f f 
-        f f f f f f f f f f f f f f f f 
+        . . 2 2 . . . . . . . . . . . . 
+        . . 2 2 . . . . . . . . . . . 2 
+        . . 2 2 2 3 3 3 3 3 3 3 3 3 3 2 
+        . . 2 2 2 f f f f f f f f f 2 2 
+        . . 2 2 2 2 2 2 2 2 2 2 2 2 2 2 
         . . . . . . . . . . . . . . . . 
         . . . . . . . . . . . . . . . . 
         . . . . . . . . . . . . . . . . 
@@ -132,7 +132,7 @@ function spawnPlayer () {
         `, SpriteKind.Player)
     controller.moveSprite(aPlayer)
     aPlayer.x = 50
-    aPlayer.y = 50
+    aPlayer.y = 100
     aPlayer.setStayInScreen(true)
     return aPlayer
 }
@@ -291,6 +291,13 @@ sprites.onOverlap(SpriteKind.Ball, SpriteKind.Goal, function (sprite, otherSprit
     sprites.destroy(sprite)
     ballCount = ballCount + -1
 })
+sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function (sprite, otherSprite) {
+    game.setGameOverEffect(false, effects.melt)
+    game.gameOver(false)
+    if (info.score() >= info.highScore()) {
+        game.setGameOverScoringType(game.ScoringType.HighScore)
+    }
+})
 let anEnemy: Sprite = null
 let aPlayer: Sprite = null
 let aGoal: Sprite = null
@@ -423,7 +430,9 @@ spawnEnemy()
 spawnPlayer()
 ballCount = 0
 game.onUpdateInterval(500, function () {
-    if (ballCount < 50) {
+    if (ballCount < 25) {
         spawnBall()
     }
+    anEnemy.follow(aPlayer, 40)
+    aGoal.follow(anEnemy, 10)
 })
