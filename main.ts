@@ -2,16 +2,12 @@ namespace SpriteKind {
     export const Ball = SpriteKind.create()
     export const Goal = SpriteKind.create()
 }
-sprites.onOverlap(SpriteKind.Player, SpriteKind.Ball, function (sprite, otherSprite) {
-    otherSprite.vx = otherSprite.vx * -1
-    otherSprite.vy = otherSprite.vx * -1
-})
-sprites.onOverlap(SpriteKind.Goal, SpriteKind.Ball, function (sprite, otherSprite) {
-    info.setScore(info.score() + 1)
-    sprites.destroy(otherSprite)
+sprites.onOverlap(SpriteKind.Ball, SpriteKind.Player, function (sprite, otherSprite) {
+    sprite.vx = sprite.vx * -1
+    sprite.vy = sprite.vx * -1
 })
 function spawnBall () {
-    mySprite = sprites.create(img`
+    aBall = sprites.create(img`
         . . . . . . . . . . . . . . . . 
         . . . . . . . . . . . . . . . . 
         . . . . . . . . . . . . . . . . 
@@ -19,25 +15,32 @@ function spawnBall () {
         . . . . . . . . . . . . . . . . 
         . . . . . . . . . . . . . . . . 
         . . . . . . . . . . . . . . . . 
-        . . . . . . . 4 5 . . . . . . . 
-        . . . . . 4 4 4 4 5 5 . . . . . 
-        . . . . e 4 f 4 4 4 4 5 5 . . . 
-        . . . . e e 4 4 4 f 4 4 4 . . . 
-        . . . e e e e 4 4 4 4 4 4 4 . . 
+        . . . . . . . 8 8 8 . . . . . . 
+        . . . . . . . 8 7 8 . . . . . . 
+        . . . . . . . 8 8 8 . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
         . . . . . . . . . . . . . . . . 
         . . . . . . . . . . . . . . . . 
         . . . . . . . . . . . . . . . . 
         . . . . . . . . . . . . . . . . 
         `, SpriteKind.Ball)
-    mySprite.y = 0
-    mySprite.x = randint(0, 180)
-    mySprite.setBounceOnWall(true)
-    mySprite.vx = randint(0, 20)
-    mySprite.vy = randint(0, 20)
-    mySprite.ay = 15
+    aBall.y = 0
+    aBall.x = randint(0, 180)
+    aBall.setBounceOnWall(true)
+    aBall.vx = randint(0, 20)
+    aBall.vy = randint(0, 20)
+    aBall.ay = 15
+    ballCount = ballCount + 1
 }
+sprites.onOverlap(SpriteKind.Ball, SpriteKind.Enemy, function (sprite, otherSprite) {
+    info.setScore(info.score() - 1)
+    music.play(music.melodyPlayable(music.spooky), music.PlaybackMode.UntilDone)
+    sprites.destroy(sprite)
+    ballCount = ballCount - -1
+})
 function spawnGoal () {
-    mySprite2 = sprites.create(img`
+    aGoal = sprites.create(img`
         . . 4 4 4 . . . . 4 4 4 . . . . 
         . 4 5 5 5 e . . e 5 5 5 4 . . . 
         4 5 5 5 5 5 e e 5 5 5 5 5 4 . . 
@@ -54,7 +57,7 @@ function spawnGoal () {
         . . . f f . . f f . . f f . . . 
         `, SpriteKind.Goal)
     animation.runImageAnimation(
-    mySprite2,
+    aGoal,
     [img`
         . . 4 4 4 . . . . 4 4 4 . . . . 
         . 4 5 5 5 e . . e 5 5 5 4 . . . 
@@ -104,39 +107,195 @@ function spawnGoal () {
     500,
     true
     )
-    mySprite.x = 50
-    mySprite.y = 50
-    mySprite.setStayInScreen(true)
+    aGoal.x = 50
+    aGoal.y = 50
+    aGoal.setStayInScreen(true)
 }
-sprites.onOverlap(SpriteKind.Ball, SpriteKind.Ball, function (sprite, otherSprite) {
-	
-})
 function spawnPlayer () {
-    mySprite2 = sprites.create(img`
-        . . . . . . b b b b a a . . . . 
-        . . . . b b d d d 3 3 3 a a . . 
-        . . . b d d d 3 3 3 3 3 3 a a . 
-        . . b d d 3 3 3 3 3 3 3 3 3 a . 
-        . b 3 d 3 3 3 3 3 b 3 3 3 3 a b 
-        . b 3 3 3 3 3 a a 3 3 3 3 3 a b 
-        b 3 3 3 3 3 a a 3 3 3 3 d a 4 b 
-        b 3 3 3 3 b a 3 3 3 3 3 d a 4 b 
-        b 3 3 3 3 3 3 3 3 3 3 d a 4 4 e 
-        a 3 3 3 3 3 3 3 3 3 d a 4 4 4 e 
-        a 3 3 3 3 3 3 3 d d a 4 4 4 e . 
-        a a 3 3 3 d d d a a 4 4 4 e e . 
-        . e a a a a a a 4 4 4 4 e e . . 
-        . . e e b b 4 4 4 4 b e e . . . 
-        . . . e e e e e e e e . . . . . 
+    aPlayer = sprites.create(img`
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        f f f f f f f f f f f f f f f f 
+        f f f f f f f f f f f f f f f f 
+        f f f f f f f f f f f f f f f f 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
         . . . . . . . . . . . . . . . . 
         `, SpriteKind.Player)
-    controller.moveSprite(mySprite2)
-    mySprite2.x = 50
-    mySprite2.y = 50
-    mySprite2.setStayInScreen(true)
+    controller.moveSprite(aPlayer)
+    aPlayer.x = 50
+    aPlayer.y = 50
+    aPlayer.setStayInScreen(true)
+    return aPlayer
 }
-let mySprite2: Sprite = null
-let mySprite: Sprite = null
+function spawnEnemy () {
+    anEnemy = sprites.create(img`
+        . . f f f . . . . . . . . f f f 
+        . f f c c . . . . . . f c b b c 
+        f f c c . . . . . . f c b b c . 
+        f c f c . . . . . . f b c c c . 
+        f f f c c . c c . f c b b c c . 
+        f f c 3 c c 3 c c f b c b b c . 
+        f f b 3 b c 3 b c f b c c b c . 
+        . c b b b b b b c b b c c c . . 
+        . c 1 b b b 1 b b c c c c . . . 
+        c b b b b b b b b b c c . . . . 
+        c b c b b b c b b b b f . . . . 
+        f b 1 f f f 1 b b b b f c . . . 
+        f b b b b b b b b b b f c c . . 
+        . f b b b b b b b b c f . . . . 
+        . . f b b b b b b c f . . . . . 
+        . . . f f f f f f f . . . . . . 
+        `, SpriteKind.Goal)
+    animation.runImageAnimation(
+    anEnemy,
+    [img`
+        . . f f f . . . . . . . . f f f 
+        . f f c c . . . . . . f c b b c 
+        f f c c . . . . . . f c b b c . 
+        f c f c . . . . . . f b c c c . 
+        f f f c c . c c . f c b b c c . 
+        f f c 3 c c 3 c c f b c b b c . 
+        f f b 3 b c 3 b c f b c c b c . 
+        . c b b b b b b c b b c c c . . 
+        . c 1 b b b 1 b b c c c c . . . 
+        c b b b b b b b b b c c . . . . 
+        c b c b b b c b b b b f . . . . 
+        f b 1 f f f 1 b b b b f c . . . 
+        f b b b b b b b b b b f c c . . 
+        . f b b b b b b b b c f . . . . 
+        . . f b b b b b b c f . . . . . 
+        . . . f f f f f f f . . . . . . 
+        `,img`
+        . . f f f . . . . . . . . . . . 
+        f f f c c . . . . . . . . f f f 
+        f f c c . . c c . . . f c b b c 
+        f f c 3 c c 3 c c f f b b b c . 
+        f f b 3 b c 3 b c f b b c c c . 
+        . c b b b b b b c f b c b c c . 
+        . c b b b b b b c b b c b b c . 
+        c b 1 b b b 1 b b b c c c b c . 
+        c b b b b b b b b c c c c c . . 
+        f b c b b b c b b b b f c . . . 
+        f b 1 f f f 1 b b b b f c c . . 
+        . f b b b b b b b b c f . . . . 
+        . . f b b b b b b c f . . . . . 
+        . . . f f f f f f f . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        `,img`
+        . . . . . . . . . . . . . . . . 
+        . . c c . . c c . . . . . . . . 
+        . . c 3 c c 3 c c c . . . . . . 
+        . c b 3 b c 3 b c c c . . . . . 
+        . c b b b b b b b b f f . . . . 
+        c c b b b b b b b b f f . . . . 
+        c b 1 b b b 1 b b c f f f . . . 
+        c b b b b b b b b f f f f . . . 
+        f b c b b b c b c c b b b . . . 
+        f b 1 f f f 1 b f c c c c . . . 
+        . f b b b b b b f b b c c . . . 
+        c c f b b b b b c c b b c . . . 
+        c c c f f f f f f c c b b c . . 
+        . c c c . . . . . . c c c c c . 
+        . . c c c . . . . . . . c c c c 
+        . . . . . . . . . . . . . . . . 
+        `,img`
+        . . f f f . . . . . . . . . . . 
+        f f f c c . . . . . . . . f f f 
+        f f c c . . c c . . . f c b b c 
+        f f c 3 c c 3 c c f f b b b c . 
+        f f b 3 b c 3 b c f b b c c c . 
+        . c b b b b b b c f b c b c c . 
+        . c b b b b b b c b b c b b c . 
+        c b 1 b b b 1 b b b c c c b c . 
+        c b b b b b b b b c c c c c . . 
+        f b c b b b c b b b b f c . . . 
+        f b 1 f f f 1 b b b b f c c . . 
+        . f b b b b b b b b c f . . . . 
+        . . f b b b b b b c f . . . . . 
+        . . . f f f f f f f . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        `,img`
+        . . f f f . . . . . . . . f f f 
+        . f f c c . . . . . . f c b b c 
+        f f c c . . . . . . f c b b c . 
+        f c f c . . . . . . f b c c c . 
+        f f f c c . c c . f c b b c c . 
+        f f c 3 c c 3 c c f b c b b c . 
+        f f b 3 b c 3 b c f b c c b c . 
+        . c 1 b b b 1 b c b b c c c . . 
+        . c 1 b b b 1 b b c c c c . . . 
+        c b b b b b b b b b c c . . . . 
+        c b 1 f f 1 c b b b b f . . . . 
+        f f 1 f f 1 f b b b b f c . . . 
+        f f 2 2 2 2 f b b b b f c c . . 
+        . f 2 2 2 2 b b b b c f . . . . 
+        . . f b b b b b b c f . . . . . 
+        . . . f f f f f f f . . . . . . 
+        `,img`
+        . . f f f . . . . . . . . . . . 
+        f f f c c . . . . . . . . f f f 
+        f f c c c . c c . . . f c b b c 
+        f f c 3 c c 3 c c f f b b b c . 
+        f f c 3 b c 3 b c f b b c c c . 
+        f c b b b b b b c f b c b c c . 
+        c c 1 b b b 1 b c b b c b b c . 
+        c b b b b b b b b b c c c b c . 
+        c b 1 f f 1 c b b c c c c c . . 
+        c f 1 f f 1 f b b b b f c . . . 
+        f f f f f f f b b b b f c . . . 
+        f f 2 2 2 2 f b b b b f c c . . 
+        . f 2 2 2 2 2 b b b c f . . . . 
+        . . f 2 2 2 b b b c f . . . . . 
+        . . . f f f f f f f . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        `,img`
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . c c . c c . . . . . . . . 
+        . . f 3 c c 3 c c c . . . . . . 
+        . f c 3 b c 3 b c c c . . . . . 
+        f c b b b b b b b b f f . . . . 
+        c c 1 b b b 1 b b b f f . . . . 
+        c b b b b b b b b c f f f . . . 
+        c b 1 f f 1 c b b f f f f . . . 
+        f f 1 f f 1 f b c c b b b . . . 
+        f f f f f f f b f c c c c . . . 
+        f f 2 2 2 2 f b f b b c c c . . 
+        . f 2 2 2 2 2 b c c b b c . . . 
+        . . f 2 2 2 b f f c c b b c . . 
+        . . . f f f f f f f c c c c c . 
+        . . . . . . . . . . . . c c c c 
+        `],
+    500,
+    true
+    )
+    anEnemy.x = 100
+    anEnemy.y = 100
+    anEnemy.setStayInScreen(true)
+    anEnemy.follow(aPlayer, 100)
+}
+sprites.onOverlap(SpriteKind.Ball, SpriteKind.Goal, function (sprite, otherSprite) {
+    info.setScore(info.score() + 1)
+    music.play(music.melodyPlayable(music.baDing), music.PlaybackMode.UntilDone)
+    sprites.destroy(sprite)
+    ballCount = ballCount + -1
+})
+let anEnemy: Sprite = null
+let aPlayer: Sprite = null
+let aGoal: Sprite = null
+let aBall: Sprite = null
+let ballCount = 0
 scene.setBackgroundImage(img`
     9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999
     9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999
@@ -259,9 +418,12 @@ scene.setBackgroundImage(img`
     dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
     dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
     `)
-spawnBall()
-spawnPlayer()
 spawnGoal()
+spawnEnemy()
+spawnPlayer()
+ballCount = 0
 game.onUpdateInterval(500, function () {
-    spawnBall()
+    if (ballCount < 50) {
+        spawnBall()
+    }
 })
