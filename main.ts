@@ -41,7 +41,6 @@ function spawnBall () {
 }
 sprites.onOverlap(SpriteKind.Enemy, SpriteKind.Ball, function (sprite, otherSprite) {
     info.changeScoreBy(-1)
-    music.play(music.melodyPlayable(music.spooky), music.PlaybackMode.UntilDone)
     sprites.destroy(otherSprite)
     ballCount = ballCount - -1
 })
@@ -119,21 +118,21 @@ function spawnGoal () {
 }
 function spawnPlayer () {
     aPlayer = sprites.create(img`
-        . . . . . . . . . . . . . . . . 
-        . . . . . . . 3 . . 3 3 . . . . 
-        . . . . . . 3 3 . . 2 3 . . . . 
-        . . . . . . 2 2 . 2 2 2 . . . . 
-        . . . . . . . . . . . . . . . . 
-        . . 2 2 . . . . . . . . . . . . 
-        . . 2 2 . . . . . . . . . . . 2 
-        . . 2 2 2 3 3 3 3 3 3 3 3 3 3 2 
-        . . 2 2 2 f f f f f f f f f 2 2 
-        . . 2 2 2 2 2 2 2 2 2 2 2 2 2 2 
-        . . . . . . . . . . . . . . . . 
-        . . . . . . . . . . . . . . . . 
-        . . . . . . . . . . . . . . . . 
-        . . . . . . . . . . . . . . . . 
-        . . . . . . . . . . . . . . . . 
+        . . . . . . b b b b a a . . . . 
+        . . . . b b d d d 3 3 3 a a . . 
+        . . . b d d d 3 3 3 3 3 3 a a . 
+        . . b d d 3 3 3 3 3 3 3 3 3 a . 
+        . b 3 d 3 3 3 3 3 b 3 3 3 3 a b 
+        . b 3 3 3 3 3 a a 3 3 3 3 3 a b 
+        b 3 3 3 3 3 a a 3 3 3 3 d a 4 b 
+        b 3 3 3 3 b a 3 3 3 3 3 d a 4 b 
+        b 3 3 3 3 3 3 3 3 3 3 d a 4 4 e 
+        a 3 3 3 3 3 3 3 3 3 d a 4 4 4 e 
+        a 3 3 3 3 3 3 3 d d a 4 4 4 e . 
+        a a 3 3 3 d d d a a 4 4 4 e e . 
+        . e a a a a a a 4 4 4 4 e e . . 
+        . . e e b b 4 4 4 4 b e e . . . 
+        . . . e e e e e e e e . . . . . 
         . . . . . . . . . . . . . . . . 
         `, SpriteKind.Player)
     controller.moveSprite(aPlayer)
@@ -289,7 +288,6 @@ function spawnEnemy () {
     anEnemy.x = 100
     anEnemy.y = 100
     anEnemy.setStayInScreen(true)
-    anEnemy.follow(aPlayer, 100)
 }
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function (sprite, otherSprite) {
     game.setGameOverEffect(false, effects.melt)
@@ -430,6 +428,6 @@ game.onUpdateInterval(100, function () {
     if (ballCount < 25) {
         spawnBall()
     }
-    anEnemy.follow(aPlayer, 40)
+    anEnemy.follow(aPlayer, 30)
     aGoal.follow(anEnemy, 10)
 })
