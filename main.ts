@@ -6,6 +6,12 @@ sprites.onOverlap(SpriteKind.Ball, SpriteKind.Player, function (sprite, otherSpr
     sprite.vx = sprite.vx * -1
     sprite.vy = sprite.vx * -1
 })
+sprites.onOverlap(SpriteKind.Goal, SpriteKind.Ball, function (sprite, otherSprite) {
+    info.changeScoreBy(1)
+    music.play(music.melodyPlayable(music.baDing), music.PlaybackMode.UntilDone)
+    sprites.destroy(otherSprite)
+    ballCount = ballCount + -1
+})
 function spawnBall () {
     aBall = sprites.create(img`
         . . . . . . . . . . . . . . . . 
@@ -33,10 +39,10 @@ function spawnBall () {
     aBall.ay = 15
     ballCount = ballCount + 1
 }
-sprites.onOverlap(SpriteKind.Ball, SpriteKind.Enemy, function (sprite, otherSprite) {
-    info.setScore(info.score() - 1)
+sprites.onOverlap(SpriteKind.Enemy, SpriteKind.Ball, function (sprite, otherSprite) {
+    info.changeScoreBy(-1)
     music.play(music.melodyPlayable(music.spooky), music.PlaybackMode.UntilDone)
-    sprites.destroy(sprite)
+    sprites.destroy(otherSprite)
     ballCount = ballCount - -1
 })
 function spawnGoal () {
@@ -154,7 +160,7 @@ function spawnEnemy () {
         . f b b b b b b b b c f . . . . 
         . . f b b b b b b c f . . . . . 
         . . . f f f f f f f . . . . . . 
-        `, SpriteKind.Goal)
+        `, SpriteKind.Enemy)
     animation.runImageAnimation(
     anEnemy,
     [img`
@@ -285,18 +291,9 @@ function spawnEnemy () {
     anEnemy.setStayInScreen(true)
     anEnemy.follow(aPlayer, 100)
 }
-sprites.onOverlap(SpriteKind.Ball, SpriteKind.Goal, function (sprite, otherSprite) {
-    info.setScore(info.score() + 1)
-    music.play(music.melodyPlayable(music.baDing), music.PlaybackMode.UntilDone)
-    sprites.destroy(sprite)
-    ballCount = ballCount + -1
-})
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function (sprite, otherSprite) {
     game.setGameOverEffect(false, effects.melt)
     game.gameOver(false)
-    if (info.score() >= info.highScore()) {
-        game.setGameOverScoringType(game.ScoringType.HighScore)
-    }
 })
 let anEnemy: Sprite = null
 let aPlayer: Sprite = null
@@ -429,7 +426,7 @@ spawnGoal()
 spawnEnemy()
 spawnPlayer()
 ballCount = 0
-game.onUpdateInterval(500, function () {
+game.onUpdateInterval(100, function () {
     if (ballCount < 25) {
         spawnBall()
     }
