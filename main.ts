@@ -41,14 +41,13 @@ function spawnBall () {
     ballCount = ballCount + 1
 }
 controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
-    boost = 4
+    boost = boostDuration
     info.changeScoreBy(-10)
     music.play(music.melodyPlayable(music.powerUp), music.PlaybackMode.UntilDone)
 })
 sprites.onOverlap(SpriteKind.Enemy, SpriteKind.Ball, function (sprite, otherSprite) {
     info.changeScoreBy(-1)
     sprites.destroy(otherSprite)
-    music.play(music.melodyPlayable(music.wawawawaa), music.PlaybackMode.UntilDone)
 })
 function updateSpeed () {
     if (info.score() < 15) {
@@ -323,6 +322,7 @@ let enemySpeed = 0
 let boost = 0
 let ballCount = 0
 let aBall: Sprite = null
+let boostDuration = 0
 let gameSpeed = 0
 scene.setBackgroundImage(img`
     9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999
@@ -448,6 +448,7 @@ scene.setBackgroundImage(img`
     `)
 music.setVolume(125)
 gameSpeed = 15
+boostDuration = 5
 spawnGoal()
 spawnEnemy()
 spawnPlayer()
