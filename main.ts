@@ -2,15 +2,10 @@ namespace SpriteKind {
     export const Ball = SpriteKind.create()
     export const Goal = SpriteKind.create()
 }
-sprites.onOverlap(SpriteKind.Ball, SpriteKind.Player, function (sprite, otherSprite) {
-    sprite.vx = sprite.vx * -1
-    sprite.vy = sprite.vx * -1
-})
 sprites.onOverlap(SpriteKind.Goal, SpriteKind.Ball, function (sprite, otherSprite) {
     info.changeScoreBy(1)
-    music.play(music.melodyPlayable(music.baDing), music.PlaybackMode.UntilDone)
+    music.play(music.melodyPlayable(music.powerUp), music.PlaybackMode.UntilDone)
     sprites.destroy(otherSprite)
-    ballCount = ballCount + -1
 })
 function spawnBall () {
     aBall = sprites.create(img`
@@ -21,9 +16,9 @@ function spawnBall () {
         . . . . . . . . . . . . . . . . 
         . . . . . . . . . . . . . . . . 
         . . . . . . . . . . . . . . . . 
-        . . . . . . . 8 8 8 . . . . . . 
-        . . . . . . . 8 7 8 . . . . . . 
-        . . . . . . . 8 8 8 . . . . . . 
+        . . . . . . . 4 4 4 . . . . . . 
+        . . . . . . . 4 5 4 . . . . . . 
+        . . . . . . . 4 4 4 . . . . . . 
         . . . . . . . . . . . . . . . . 
         . . . . . . . . . . . . . . . . 
         . . . . . . . . . . . . . . . . 
@@ -32,17 +27,29 @@ function spawnBall () {
         . . . . . . . . . . . . . . . . 
         `, SpriteKind.Ball)
     aBall.y = 0
-    aBall.x = randint(0, 180)
+    aBall.x = randint(15, 145)
     aBall.setBounceOnWall(true)
     aBall.vx = randint(0, 20)
     aBall.vy = randint(0, 20)
     aBall.ay = 15
     ballCount = ballCount + 1
 }
+controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
+    effects.starField.startScreenEffect(300)
+    for (let value of sprites.allOfKind(SpriteKind.Ball)) {
+        if (Math.percentChance(50)) {
+            sprites.destroy(value)
+        }
+    }
+})
 sprites.onOverlap(SpriteKind.Enemy, SpriteKind.Ball, function (sprite, otherSprite) {
     info.changeScoreBy(-1)
+    music.play(music.melodyPlayable(music.powerDown), music.PlaybackMode.UntilDone)
     sprites.destroy(otherSprite)
-    ballCount = ballCount - -1
+})
+sprites.onOverlap(SpriteKind.Enemy, SpriteKind.Goal, function (sprite, otherSprite) {
+    game.setGameOverEffect(false, effects.melt)
+    game.gameOver(false)
 })
 function spawnGoal () {
     aGoal = sprites.create(img`
@@ -112,8 +119,8 @@ function spawnGoal () {
     500,
     true
     )
-    aGoal.x = 50
-    aGoal.y = 50
+    aGoal.x = 10
+    aGoal.y = 10
     aGoal.setStayInScreen(true)
 }
 function spawnPlayer () {
@@ -136,8 +143,8 @@ function spawnPlayer () {
         . . . . . . . . . . . . . . . . 
         `, SpriteKind.Player)
     controller.moveSprite(aPlayer)
-    aPlayer.x = 50
-    aPlayer.y = 100
+    aPlayer.x = 60
+    aPlayer.y = 50
     aPlayer.setStayInScreen(true)
     return aPlayer
 }
@@ -285,14 +292,10 @@ function spawnEnemy () {
     500,
     true
     )
-    anEnemy.x = 100
+    anEnemy.x = 120
     anEnemy.y = 100
     anEnemy.setStayInScreen(true)
 }
-sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function (sprite, otherSprite) {
-    game.setGameOverEffect(false, effects.melt)
-    game.gameOver(false)
-})
 let anEnemy: Sprite = null
 let aPlayer: Sprite = null
 let aGoal: Sprite = null
@@ -420,14 +423,13 @@ scene.setBackgroundImage(img`
     dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
     dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
     `)
+music.setVolume(125)
+ballCount = 0
 spawnGoal()
 spawnEnemy()
 spawnPlayer()
-ballCount = 0
-game.onUpdateInterval(100, function () {
-    if (ballCount < 25) {
-        spawnBall()
-    }
-    anEnemy.follow(aPlayer, 30)
-    aGoal.follow(anEnemy, 10)
+game.onUpdateInterval(1000, function () {
+    spawnBall()
+    anEnemy.follow(aGoal, 20)
+    aGoal.follow(aPlayer, 40)
 })
