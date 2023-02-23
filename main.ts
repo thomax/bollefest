@@ -56,8 +56,8 @@ sprites.onOverlap(SpriteKind.Enemy, SpriteKind.Ball, function (sprite, otherSpri
     sprites.destroy(otherSprite)
 })
 function updateSpeed () {
-    if (info.score() < 15) {
-        gameSpeed = 15
+    if (info.score() < 40) {
+        gameSpeed = 40
     } else {
         gameSpeed = info.score()
     }
@@ -453,13 +453,12 @@ scene.setBackgroundImage(img`
     dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
     `)
 music.setVolume(125)
-gameSpeed = 15
+gameSpeed = 40
 boostDuration = 5
-let repelDuration = 10
 spawnGoal()
 spawnEnemy()
 spawnPlayer()
-game.onUpdateInterval(1000, function () {
+game.onUpdateInterval(500, function () {
     spawnBall()
     updateSpeed()
     anEnemy.follow(aPet, enemySpeed)
