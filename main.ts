@@ -7,6 +7,7 @@ sprites.onOverlap(SpriteKind.Enemy, SpriteKind.Pet, function (sprite, otherSprit
     game.setGameOverEffect(false, effects.melt)
     game.setGameOverScoringType(game.ScoringType.HighScore)
     game.gameOver(false)
+    game.splash("Highscore: ", info.highScore())
 })
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Ball, function (sprite, otherSprite) {
     info.changeScoreBy(2)
