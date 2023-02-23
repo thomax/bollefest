@@ -13,6 +13,12 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Ball, function (sprite, otherSpr
     music.play(music.melodyPlayable(music.baDing), music.PlaybackMode.UntilDone)
     sprites.destroy(otherSprite)
 })
+controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
+    anEnemy.startEffect(effects.coolRadial, 300)
+    info.changeScoreBy(-10)
+    music.play(music.melodyPlayable(music.powerUp), music.PlaybackMode.UntilDone)
+    anEnemy.setPosition(80, 60)
+})
 function spawnBall () {
     aBall = sprites.create(img`
         . . . . . . . . . . . . . . . . 
@@ -314,7 +320,6 @@ function spawnEnemy () {
     anEnemy.y = 100
     anEnemy.setStayInScreen(true)
 }
-let anEnemy: Sprite = null
 let aPlayer: Sprite = null
 let petSpeed = 0
 let aPet: Sprite = null
@@ -322,6 +327,7 @@ let enemySpeed = 0
 let boost = 0
 let ballCount = 0
 let aBall: Sprite = null
+let anEnemy: Sprite = null
 let boostDuration = 0
 let gameSpeed = 0
 scene.setBackgroundImage(img`
@@ -449,6 +455,7 @@ scene.setBackgroundImage(img`
 music.setVolume(125)
 gameSpeed = 15
 boostDuration = 5
+let repelDuration = 10
 spawnGoal()
 spawnEnemy()
 spawnPlayer()
